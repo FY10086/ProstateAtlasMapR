@@ -1,0 +1,9 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^README\.Rmd$
+^\.github$
+^\.git$
+^\.gitignore$
+^\.Rcheck$
+^.*\.tar\.gz$
+^LICENSE\.md$

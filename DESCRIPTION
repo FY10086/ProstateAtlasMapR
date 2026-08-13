@@ -1,0 +1,37 @@
+Package: ProstateAtlasMapR
+Title: Reference Mapping onto the Prostate Single-Cell Atlas
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Lei", "Tang", email = "tanglei@example.com", role = c("aut", "cre"))
+  )
+Description: Build a lightweight reference from a prostate single-cell atlas
+    and map new single-cell datasets onto it with Seurat's anchor-based
+    workflow (FindTransferAnchors + MapQuery), while preserving the atlas
+    umap.rpca coordinates. Users can choose annotation level H1/H2/H3 at
+    mapping time. The lean reference object is distributed separately from
+    this package (e.g. GitHub Releases or Zenodo).
+License: MIT + file LICENSE
+URL: https://github.com/FY10086/ProstateAtlasMapR
+BugReports: https://github.com/FY10086/ProstateAtlasMapR/issues
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Depends:
+    R (>= 4.1.0)
+Imports:
+    Seurat (>= 5.0.0),
+    SeuratObject,
+    qs,
+    uwot,
+    cli,
+    curl,
+    tools,
+    stats,
+    utils
+Suggests:
+    ggplot2,
+    patchwork,
+    testthat (>= 3.0.0),
+    openssl,
+    withr
+Config/testthat/edition: 3
