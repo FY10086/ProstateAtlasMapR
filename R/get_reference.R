@@ -47,11 +47,26 @@
 #'
 #' @export
 get_reference <- function(path = NULL,
-                          url = getOption("ProstateAtlasMapR.reference_url"),
-                          sha256 = getOption("ProstateAtlasMapR.reference_sha256"),
+                          url = NULL,
+                          sha256 = NULL,
                           cache_dir = tools::R_user_dir("ProstateAtlasMapR", "cache"),
                           force = FALSE,
                           verbose = TRUE) {
+  ## Fall back: explicit arg → option → baked-in Release defaults.
+  ## (Avoids failure when an old session left options at NULL.)
+  if (is.null(url) || !nzchar(url)) {
+    url <- getOption("ProstateAtlasMapR.reference_url")
+  }
+  if (is.null(url) || !nzchar(url)) {
+    url <- .default_reference_url()
+  }
+  if (is.null(sha256) || !nzchar(sha256)) {
+    sha256 <- getOption("ProstateAtlasMapR.reference_sha256")
+  }
+  if (is.null(sha256) || !nzchar(sha256)) {
+    sha256 <- .default_reference_sha256()
+  }
+
   if (!is.null(path)) {
     if (!file.exists(path)) {
       cli::cli_abort("File not found: {.path {path}}")
@@ -70,12 +85,14 @@ get_reference <- function(path = NULL,
     ))
   }
 
-  if (is.null(sha256) || !nzchar(sha256)) {
+  if (is.null(sha256) || !nzchar(as.character(sha256)[1])) {
     cli::cli_warn(c(
       "No SHA-256 provided; downloaded file will not be integrity-checked.",
       "i" = "Set {.code options(ProstateAtlasMapR.reference_sha256 = <hex>)} or pass {.arg sha256}."
     ))
     sha256 <- NULL
+  } else {
+    sha256 <- as.character(sha256)[1]
   }
 
   if (!dir.exists(cache_dir)) {

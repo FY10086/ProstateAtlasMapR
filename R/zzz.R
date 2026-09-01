@@ -1,14 +1,13 @@
 .onLoad <- function(libname, pkgname) {
-  ## Default: GitHub Release v0.1.0 lean reference (~0.9 GB).
-  ## Users may override with options(...) before or after loading.
-  op <- options()
-  op.pkg <- list(
-    ProstateAtlasMapR.reference_url = .default_reference_url(),
-    ProstateAtlasMapR.reference_sha256 = .default_reference_sha256()
-  )
-  toset <- !(names(op.pkg) %in% names(op))
-  if (any(toset)) {
-    options(op.pkg[toset])
+  ## Always fill missing/NULL options with the GitHub Release defaults.
+  ## (Old sessions may have left these names unset or NULL.)
+  if (is.null(getOption("ProstateAtlasMapR.reference_url")) ||
+      !nzchar(getOption("ProstateAtlasMapR.reference_url"))) {
+    options(ProstateAtlasMapR.reference_url = .default_reference_url())
+  }
+  if (is.null(getOption("ProstateAtlasMapR.reference_sha256")) ||
+      !nzchar(getOption("ProstateAtlasMapR.reference_sha256"))) {
+    options(ProstateAtlasMapR.reference_sha256 = .default_reference_sha256())
   }
   invisible()
 }

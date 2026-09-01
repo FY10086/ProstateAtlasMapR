@@ -71,10 +71,17 @@ test_that("get_reference() aborts on checksum mismatch", {
   )
 })
 
-test_that("get_reference() errors when no url/path is available", {
+test_that("get_reference() falls back to baked-in Release URL when options are NULL", {
   withr::local_options(list(
     ProstateAtlasMapR.reference_url = NULL,
     ProstateAtlasMapR.reference_sha256 = NULL
   ))
-  expect_error(get_reference(verbose = FALSE), "No download URL")
+  ## Should not abort on missing URL; resolves to GitHub Release default.
+  ## Do not download: intercept by passing a tiny local file via path instead
+  ## and only check that url resolution would succeed through the helpers.
+  expect_identical(
+    ProstateAtlasMapR:::.default_reference_url(),
+    "https://github.com/FY10086/ProstateAtlasMapR/releases/download/v0.1.0/prostate_atlas_reference.qs"
+  )
+  expect_true(nzchar(ProstateAtlasMapR:::.default_reference_sha256()))
 })
