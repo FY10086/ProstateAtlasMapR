@@ -52,19 +52,25 @@ get_reference <- function(path = NULL,
                           cache_dir = tools::R_user_dir("ProstateAtlasMapR", "cache"),
                           force = FALSE,
                           verbose = TRUE) {
-  ## Fall back: explicit arg → option → baked-in Release defaults.
-  ## (Avoids failure when an old session left options at NULL.)
-  if (is.null(url) || !nzchar(url)) {
+  ## Resolve URL/SHA with no dependency on .onLoad having run:
+  ## explicit arg → option → hardcoded GitHub Release v0.1.0.
+  .blank <- function(x) {
+    is.null(x) || length(x) < 1L || (is.character(x) && !any(nzchar(x), na.rm = TRUE))
+  }
+  default_url <- "https://github.com/FY10086/ProstateAtlasMapR/releases/download/v0.1.0/prostate_atlas_reference.qs"
+  default_sha <- "c83d94b5326aad495cb854f98fbb31ca10a0b1143eaf45bab055f368a8071d5f"
+
+  if (.blank(url)) {
     url <- getOption("ProstateAtlasMapR.reference_url")
   }
-  if (is.null(url) || !nzchar(url)) {
-    url <- .default_reference_url()
+  if (.blank(url)) {
+    url <- default_url
   }
-  if (is.null(sha256) || !nzchar(sha256)) {
+  if (.blank(sha256)) {
     sha256 <- getOption("ProstateAtlasMapR.reference_sha256")
   }
-  if (is.null(sha256) || !nzchar(sha256)) {
-    sha256 <- .default_reference_sha256()
+  if (.blank(sha256)) {
+    sha256 <- default_sha
   }
 
   if (!is.null(path)) {
@@ -77,22 +83,14 @@ get_reference <- function(path = NULL,
     return(.load_reference(path))
   }
 
-  if (is.null(url) || !nzchar(url)) {
+  url <- as.character(url)[[1]]
+  sha256 <- as.character(sha256)[[1]]
+  if (!nzchar(url)) {
     cli::cli_abort(c(
       "No download URL available.",
-      "i" = "Pass {.arg path} to a local {.code .qs} file, or set {.code options(ProstateAtlasMapR.reference_url = <url>)}.",
-      "i" = "Default release: {.url https://github.com/FY10086/ProstateAtlasMapR/releases/tag/v0.1.0}"
+      "i" = "Pass {.arg path} to a local {.code .qs} file.",
+      "i" = "Or use the Release asset at {.url https://github.com/FY10086/ProstateAtlasMapR/releases/tag/v0.1.0}."
     ))
-  }
-
-  if (is.null(sha256) || !nzchar(as.character(sha256)[1])) {
-    cli::cli_warn(c(
-      "No SHA-256 provided; downloaded file will not be integrity-checked.",
-      "i" = "Set {.code options(ProstateAtlasMapR.reference_sha256 = <hex>)} or pass {.arg sha256}."
-    ))
-    sha256 <- NULL
-  } else {
-    sha256 <- as.character(sha256)[1]
   }
 
   if (!dir.exists(cache_dir)) {
