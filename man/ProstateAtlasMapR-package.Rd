@@ -4,9 +4,9 @@
 \name{ProstateAtlasMapR-package}
 \alias{ProstateAtlasMapR}
 \alias{ProstateAtlasMapR-package}
-\title{ProstateAtlasMapR: Reference Mapping onto the Prostate Single-Cell Atlas}
+\title{ProstateAtlasMapR: Reference Mapping and Spatial Deconvolution for the Prostate Atlas}
 \description{
-Build a lightweight reference from a prostate single-cell atlas and map new single-cell datasets onto it with Seurat's anchor-based workflow (FindTransferAnchors + MapQuery), while preserving the atlas umap.rpca coordinates. Users can choose annotation level H1/H2/H3 at mapping time. The lean reference object is distributed separately from this package (e.g. GitHub Releases or Zenodo).
+Build a lightweight reference from a prostate single-cell atlas and (1) map new single-cell datasets onto it with Seurat's anchor-based workflow (FindTransferAnchors + MapQuery), preserving the atlas umap.rpca coordinates, or (2) run spacexr RCTD deconvolution on spatial transcriptomics data. Includes focused plotting helpers for prediction scores and RCTD weights. Users choose annotation level H1/H2/H3 at call time. The lean reference object is distributed separately from this package as a GitHub Release asset (\code{prostate_atlas_reference.qs}).
 }
 \seealso{
 Useful links:

@@ -2,19 +2,9 @@
 % Please edit documentation in R/get_reference.R
 \name{get_reference}
 \alias{get_reference}
-\alias{download_reference}
 \title{Get the prebuilt prostate atlas reference (download + cache, or load local)}
 \usage{
 get_reference(
-  path = NULL,
-  url = getOption("ProstateAtlasMapR.reference_url"),
-  sha256 = getOption("ProstateAtlasMapR.reference_sha256"),
-  cache_dir = tools::R_user_dir("ProstateAtlasMapR", "cache"),
-  force = FALSE,
-  verbose = TRUE
-)
-
-download_reference(
   path = NULL,
   url = getOption("ProstateAtlasMapR.reference_url"),
   sha256 = getOption("ProstateAtlasMapR.reference_sha256"),
@@ -28,12 +18,13 @@ download_reference(
 file is read directly and no download is attempted.}
 
 \item{url}{URL to download the reference from. Defaults to
-\code{getOption("ProstateAtlasMapR.reference_url")}.}
+\code{getOption("ProstateAtlasMapR.reference_url")}, which is set on package
+load to the v0.1.0 GitHub Release asset.}
 
-\item{sha256}{Expected SHA-256 checksum (hex string) used to verify the
-downloaded file's integrity. Defaults to
-\code{getOption("ProstateAtlasMapR.reference_sha256")}. If \code{NULL}, the
-checksum step is skipped (with a warning).}
+\item{sha256}{Expected SHA-256 checksum (hex string). Defaults to
+\code{getOption("ProstateAtlasMapR.reference_sha256")}. Verification requires
+the \strong{openssl} package. If \code{NULL}, checksum verification is skipped
+(with a warning).}
 
 \item{cache_dir}{Directory used to cache the downloaded file. Defaults to
 a per-user cache directory via \code{\link[tools:userdir]{tools::R_user_dir()}}.}
@@ -47,10 +38,20 @@ exists. Default \code{FALSE}.}
 An object of class \code{patlas_reference}.
 }
 \description{
-The lean reference produced by \code{\link[=build_reference]{build_reference()}} is distributed
-separately from this package's source code (e.g. via Zenodo or GitHub
-Releases), since it is still too large to ship inside an R package. This
-function downloads it once, verifies its integrity, caches it locally,
-and returns the loaded \code{patlas_reference} object -- or simply loads a
-local copy if you already have one.
+The lean reference produced by \code{\link[=build_reference]{build_reference()}} is hosted as a
+\href{https://github.com/FY10086/ProstateAtlasMapR/releases}{GitHub Release}
+asset (\code{prostate_atlas_reference.qs}, ~0.9 GB), not inside the R package
+source. By default this function downloads that file once, verifies its
+SHA-256 checksum, caches it under \code{\link[tools:userdir]{tools::R_user_dir()}}, and returns the
+loaded \code{patlas_reference} object. Pass \code{path} to use a local copy instead.
+}
+\examples{
+\dontrun{
+## Download once (~0.9 GB), then reuse the cache:
+ref <- get_reference()
+
+## Or point at a local copy:
+ref <- get_reference(path = "prostate_atlas_reference.qs")
+}
+
 }

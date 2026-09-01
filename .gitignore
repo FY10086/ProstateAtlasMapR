@@ -8,6 +8,8 @@ inst/doc
 Meta
 doc
 *.html
+*.pdf
+Rplots.pdf
 *.qs
 *.rds
 *.Rds

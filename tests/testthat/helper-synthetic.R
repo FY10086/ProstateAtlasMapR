@@ -63,3 +63,59 @@ make_synthetic_query <- function(gene_names, n_cells = 60, seed = 42) {
   colnames(counts) <- paste0("qcell", seq_len(n_cells))
   SeuratObject::CreateSeuratObject(counts = counts)
 }
+
+#' Tiny atlas-like Seurat for RCTD unit tests (no RPCA/UMAP needed).
+make_synthetic_rctd_reference <- function(seed = 1,
+                                          n_genes = 120,
+                                          n_cells_per_type = 40,
+                                          types = c("Epithelial", "Immune", "Stromal")) {
+  set.seed(seed)
+  n_types <- length(types)
+  n_cells <- n_cells_per_type * n_types
+  ## type-biased counts so RCTD can find DE genes
+  counts <- matrix(0L, nrow = n_genes, ncol = n_cells)
+  rownames(counts) <- paste0("gene", seq_len(n_genes))
+  colnames(counts) <- paste0("cell", seq_len(n_cells))
+  genes_per_type <- max(5L, floor(n_genes / (n_types + 1)))
+  for (i in seq_len(n_types)) {
+    cells <- seq.int((i - 1L) * n_cells_per_type + 1L, i * n_cells_per_type)
+    marker <- seq.int((i - 1L) * genes_per_type + 1L, i * genes_per_type)
+    counts[, cells] <- matrix(
+      stats::rpois(n_genes * n_cells_per_type, lambda = 2),
+      nrow = n_genes
+    )
+    counts[marker, cells] <- counts[marker, cells] +
+      matrix(stats::rpois(length(marker) * n_cells_per_type, lambda = 20),
+             nrow = length(marker))
+  }
+  seu <- SeuratObject::CreateSeuratObject(counts = counts)
+  type_vec <- rep(types, each = n_cells_per_type)
+  seu$celltype_manual_H1 <- type_vec
+  seu$celltype_manual_H2 <- paste0(type_vec, "_sub", rep(1:2, length.out = n_cells))
+  seu$celltype_manual_H3 <- paste0(seu$celltype_manual_H2, "_fine1")
+  seu
+}
+
+#' Tiny spatial Seurat with explicit x/y coords for RCTD tests.
+#' Also attaches a DimReduc named `"spatial"` so `coords = "spatial"` works.
+make_synthetic_spatial <- function(gene_names, n_spots = 30, seed = 99) {
+  set.seed(seed)
+  n_genes <- length(gene_names)
+  counts <- matrix(stats::rpois(n_genes * n_spots, lambda = 8), nrow = n_genes, ncol = n_spots)
+  rownames(counts) <- gene_names
+  colnames(counts) <- paste0("spot", seq_len(n_spots))
+  seu <- SeuratObject::CreateSeuratObject(counts = counts, assay = "Spatial")
+  coords <- data.frame(
+    x = rep(seq_len(ceiling(sqrt(n_spots))), length.out = n_spots),
+    y = rep(seq_len(ceiling(sqrt(n_spots))), each = ceiling(sqrt(n_spots)), length.out = n_spots),
+    row.names = colnames(seu)
+  )
+  emb <- as.matrix(coords)
+  colnames(emb) <- c("coords_1", "coords_2")
+  seu[["spatial"]] <- SeuratObject::CreateDimReducObject(
+    embeddings = emb,
+    key = "coords_",
+    assay = "Spatial"
+  )
+  list(seurat = seu, coords = coords)
+}
